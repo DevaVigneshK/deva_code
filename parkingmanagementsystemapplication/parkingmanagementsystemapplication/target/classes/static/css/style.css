@@ -1,0 +1,49 @@
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+input, select, button {
+    margin: 5px;
+}
+body {
+  margin: 0;
+  height: 100vh;
+  background: linear-gradient(135deg, #2c3e50, #27ae60);
+  font-family: 'Poppins', sans-serif;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column; /* Keep all content in vertical stack */
+  position: relative;
+}
+
+/* Main content area (left or center) */
+.main-content {
+  padding: 40px;
+}
+
+/* Car box on the right side but layout stays vertical */
+.container {
+  position: absolute;
+  top: 100px;
+  right:250px ;
+  width: 400px;
+  height: 400px;
+  
+  background-color: #2ecc71;
+  border-radius: 20px;
+  box-shadow: -4px 0 10px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+  margin-top: 60px;
+}
+
+.car-icon {
+  font-size: 60px;
+  margin-bottom: 15px;
+  color: white;
+}

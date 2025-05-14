@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Parking Management</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        input, select, button {
+            margin: 5px 0;
+            padding: 8px;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        ul {
+            list-style: disc;
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="left" style="margin-left: 150px;">
+<h1>Parking Management</h1>
+
+<div class="section">
+    <h2>Add Parking Spot</h2>
+    <input type="text" id="spotNumber" placeholder="Spot Number">
+    <button onclick="addSpot()">Add Spot</button>
+</div>
+
+<div class="section">
+    <h2>Add Vehicle</h2>
+    <input type="text" id="licensePlate" placeholder="License Plate">
+    <input type="text" id="ownerName" placeholder="Owner Name">
+    <select id="spotSelect"></select>
+    <button onclick="addVehicle()">Add Vehicle</button>
+</div>
+
+<div class="section">
+    <h2>Vehicles</h2>
+    <ul id="vehicleList"></ul>
+</div>
+
+<div class="section">
+    <h2>Parking Spots</h2>
+    <ul id="spotList"></ul>
+</div>
+</div>
+
+<script>
+    async function fetchSpots() {
+        const res = await fetch('/api/spots');
+        const spots = await res.json();
+
+        const spotSelect = document.getElementById('spotSelect');
+        const spotList = document.getElementById('spotList');
+
+        spotSelect.innerHTML = '';
+        spotList.innerHTML = '';
+
+        spots.forEach(spot => {
+            const option = document.createElement('option');
+            option.value = spot.id;
+            option.textContent = `Spot ${spot.spotNumber}`;
+            if (!spot.occupied) {
+                spotSelect.appendChild(option);
+            }
+
+            const listItem = document.createElement('li');
+            listItem.textContent = `Spot ${spot.spotNumber} - ${spot.occupied ? 'Occupied' : 'Available'}`;
+            spotList.appendChild(listItem);
+        });
+    }
+
+    async function fetchVehicles() {
+        const res = await fetch('/api/vehicles');
+        const vehicles = await res.json();
+        const list = document.getElementById('vehicleList');
+        list.innerHTML = '';
+
+        vehicles.forEach(vehicle => {
+            const item = document.createElement('li');
+            item.textContent = `${vehicle.licensePlate} - Owner: ${vehicle.ownerName} at Spot ${vehicle.parkingSpot.spotNumber}`;
+            const btn = document.createElement('button');
+            btn.textContent = 'Remove';
+            btn.onclick = () => removeVehicle(vehicle.id);
+            item.appendChild(btn);
+            list.appendChild(item);
+        });
+    }
+
+    async function addSpot() {
+        const spotNumber = document.getElementById('spotNumber').value;
+        if (!spotNumber) return;
+        await fetch('/api/add-spot', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ spotNumber, occupied: false })
+        });
+        document.getElementById('spotNumber').value = '';
+        fetchSpots();
+    }
+
+    async function addVehicle() {
+        const licensePlate = document.getElementById('licensePlate').value;
+        const ownerName = document.getElementById('ownerName').value;
+        const spotId = document.getElementById('spotSelect').value;
+
+        if (!licensePlate || !ownerName || !spotId) return;
+
+        const res = await fetch('/api/add-vehicle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                licensePlate,
+                ownerName,
+                parkingSpot: { id: spotId }
+            })
+        });
+        const message = await res.text();
+        alert(message);
+        document.getElementById('licensePlate').value = '';
+        document.getElementById('ownerName').value = '';
+        fetchVehicles();
+        fetchSpots();
+    }
+
+    async function removeVehicle(id) {
+        await fetch(`/api/remove-vehicle/${id}`, { method: 'DELETE' });
+        fetchVehicles();
+        fetchSpots();
+    }
+
+    fetchSpots();
+    fetchVehicles();
+</script>
+
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Parking Management</title>
+  <link rel="stylesheet" href="style.css" />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+</head>
+<body>
+
+  <!-- Right-side vertical car icon box -->
+  <div class="container">
+    <i class="fas fa-car-side car-icon"></i>
+    <h1>Parking Management System</h1>
+    <p>Welcome! Manage your parking spots efficiently and in style.</p>
+  </div>
+</body>
+</html>
